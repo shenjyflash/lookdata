@@ -20,9 +20,9 @@ import com.digitalchina.utils.ChinapayUtil;
  * @author shenjyb
  */
 @Controller
-public class OrderComfirmController {
+public class QueryTranController {
 
-	private static final Log log = LogFactory.getLog(OrderComfirmController.class);
+	private static final Log log = LogFactory.getLog(QueryTranController.class);
 	
 	@RequestMapping(value = "/pay" ,method = RequestMethod.GET)
 	public String topay(Model model, HttpServletRequest request) {
