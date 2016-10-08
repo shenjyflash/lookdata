@@ -24,7 +24,7 @@ public class QueryTranController {
 
 	private static final Log log = LogFactory.getLog(QueryTranController.class);
 	
-	@RequestMapping(value = "/pay" ,method = RequestMethod.GET)
+	@RequestMapping(value = "/query" ,method = RequestMethod.GET)
 	public String topay(Model model, HttpServletRequest request) {
 		
 	     String url = "http://newpayment-test.chinapay.com/CTITS/service/rest/page/nref/000000000017/0/0/0/0/0";
@@ -54,7 +54,7 @@ public class QueryTranController {
 	 * 支付交易完成后，支付应答会分前台页面跳转和后台Http通知方式返回给商户，
 	 * 商户需要对ChinaPay返回报文签名进行验签，以确定此报文是由ChinaPay发出
 	 */
-	@RequestMapping(value="/chinapayrecv",method = RequestMethod.POST)
+	@RequestMapping(value="/queryback",method = RequestMethod.POST)
 	public void payBackInfo(HttpServletRequest request){
 		log.info("接收chinapay发出的后台通知开始");
 		String encoding = request.getParameter("encoding");

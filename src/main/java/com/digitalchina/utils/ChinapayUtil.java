@@ -41,7 +41,7 @@ public class ChinapayUtil {
 		//由ChinaPay分配的15位定长数字，用于确认商户身份
 		map.put("MerId", MerId);
 		//必填，变长 32位，同一商户同一交易日期内不可重复
-		map.put("MerOrderNo", "39123456789012");
+		map.put("MerOrderNo", generateOrderNo());
 		//商户提交交易的日期
 		map.put("TranDate", getCurrentTime()[0]);
 		//商户提交交易的时间，例如交易时间10点11分22秒，则值为101122
@@ -53,7 +53,7 @@ public class ChinapayUtil {
 		 *  0001个人网银支付 0002企业网银支付 0003授信交易 0004快捷支付
 			0005账单支付 0006认证支付 0007分期付款 0201预授权交易
 		 */
-		map.put("TranType", "0001");
+		//map.put("TranType", "0001");
 		//业务类型  固定值
 		map.put("BusiType", "0001");
 		//交易币种
