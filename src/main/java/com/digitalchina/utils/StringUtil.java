@@ -120,10 +120,9 @@ public class StringUtil {
 					continue;
 				}
 				int index = str.indexOf("=");
-//				if (entryStrs.length > 1) {
-//					data.put(entryStrs[0], entryStrs[1]);
-//				}
-				data.put(str.substring(0, index),str.substring(index+1));
+				if(index!=-1){
+					data.put(str.substring(0, index),str.substring(index+1));
+				}
 			}
 		}
 		return data;

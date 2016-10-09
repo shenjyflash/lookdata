@@ -31,7 +31,9 @@ import com.digitalchina.utils.SignUtil;
 import com.digitalchina.utils.StringUtil;
 
 /**
- *后续类交易主要是指对已发生的交易，做后续的相关的交易处理；
+ *后续类交易
+ *
+ *主要是指对已发生的交易，做后续的相关的交易处理；
  *包括：退款、退款撤销、退款重汇、消费撤销、预授权撤销、预授权完成撤销、
  *预授权完成、通知分账。
  *退款的相关操作也可以在企业门户系统中进行操作，
@@ -43,7 +45,7 @@ import com.digitalchina.utils.StringUtil;
 public class SubseqTransactionController {
 
 	
-	private static final Log log = LogFactory.getLog(OrderComfirmController.class);
+	private static final Log log = LogFactory.getLog("RT");
 	
 	/**后续交易提交数据地址
 	 * 0401退款、0402退款撤销、0409退款重汇、9908通知分账的交易
@@ -67,7 +69,7 @@ public class SubseqTransactionController {
 	}
 	
 	/**
-	 * 退款
+	 * 退款  即时返回
 	 * @param model
 	 * @param request
 	 * @param response
@@ -116,8 +118,6 @@ public class SubseqTransactionController {
 			return null;
 		}
 		map.put("Signature", signature);
-		List<NameValuePair> formparams = HttpUtil.getNameValue(map);
-		
 		CloseableHttpResponse httpResonse = HttpUtil.sendToOtherServer(subUrl, map);
 		if(null==httpResonse){
 			//
@@ -157,5 +157,33 @@ public class SubseqTransactionController {
 	    return "/test/tuikuan"; 
 	}
 	
+	/**
+	 * 退款成功/失败回调
+	 * @param request
+	 * @param response
+	 */
+	@RequestMapping("/callback")
+	public void callBack(HttpServletRequest request,HttpServletResponse response){
+		log.info("接收chinapay发出的退款后台通知开始");
+		Map<String,String[]> paramsMap = request.getParameterMap();
+		//验证签名。
+		SecssUtil secssUtil = new SecssUtil();
+		secssUtil.init();
+		secssUtil.verify(paramsMap);
+		if(!SecssConstants.SUCCESS.equals(secssUtil.getErrCode())){
+			//验签失败
+			log.info("接收到chinapay发出退款后台通知的参数,验签失败  "+secssUtil.getErrMsg());
+			return;
+		}
+		log.info("接收到chinapay发出退款后台通知的参数"+paramsMap);
+		log.info("退款订单状态 （0000为成功）： "+paramsMap.get("OrderStatus"));
+		
+		if("0000".equals(paramsMap.get("OrderStatus"))){
+			//支付成功，修改订单状态
+			log.info(paramsMap.get("OriOrderNo")+"订单退款成功!");
+		}else{
+			log.info(paramsMap.get("OriOrderNo")+"订单退款失败!");
+		}
+	}
 	
 }

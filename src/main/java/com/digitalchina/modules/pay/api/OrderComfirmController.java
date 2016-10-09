@@ -22,7 +22,7 @@ import com.digitalchina.utils.ChinapayUtil;
 @Controller
 public class OrderComfirmController {
 
-	private static final Log log = LogFactory.getLog(OrderComfirmController.class);
+	private static final Log log = LogFactory.getLog("RT");
 	
 	@RequestMapping(value = "/pay" ,method = RequestMethod.GET)
 	public String topay(Model model, HttpServletRequest request) {
@@ -57,7 +57,6 @@ public class OrderComfirmController {
 	@RequestMapping(value="/chinapayrecv",method = RequestMethod.POST)
 	public void payBackInfo(HttpServletRequest request){
 		log.info("接收chinapay发出的后台通知开始");
-		String encoding = request.getParameter("encoding");
 		Map<String,String[]> paramsMap = request.getParameterMap();
 		//验证签名。
 		SecssUtil secssUtil = new SecssUtil();
