@@ -36,8 +36,8 @@ public class ChinapayUtil {
 		Map<String, String> map = new HashMap<String, String>();
 		//固定值
 		map.put("Version", Version);
-		//map.put("AccessType", "20160926");
-		//map.put("AcqCode", "20160926");
+		map.put("AccessType", "0");
+		map.put("AcqCode", "000000000000014");
 		//由ChinaPay分配的15位定长数字，用于确认商户身份
 		map.put("MerId", MerId);
 		//必填，变长 32位，同一商户同一交易日期内不可重复
@@ -53,11 +53,11 @@ public class ChinapayUtil {
 		 *  0001个人网银支付 0002企业网银支付 0003授信交易 0004快捷支付
 			0005账单支付 0006认证支付 0007分期付款 0201预授权交易
 		 */
-		//map.put("TranType", "0001");
+		map.put("TranType", "0001");
 		//业务类型  固定值
 		map.put("BusiType", "0001");
 		//交易币种
-		//map.put("CurryNo", "CNY");
+		map.put("CurryNo", "CNY");
 		//分账类型 不分账不填写此域；如需要分账，填写格式如下：0001：实时分账 0002：延时分账
 		//map.put("SplitType", "0001");
 		//分账方式    0：按金额分账   1：按比例分账
@@ -93,7 +93,7 @@ public class ChinapayUtil {
 		StringBuffer sf = new StringBuffer();
 		sf.append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset="+encoding+"\"/></head><body>");
 		sf.append("<form id = \"pay_form\" action=\"" + url
-				+ "\" method=\"post\">");
+				+ "\" method=\"post\"  target=\"_blank\" >");
 		if (null != hiddens && 0 != hiddens.size()) {
 			Set<Entry<String, String>> set = hiddens.entrySet();
 			Iterator<Entry<String, String>> it = set.iterator();
@@ -101,15 +101,15 @@ public class ChinapayUtil {
 				Entry<String, String> ey = it.next();
 				String key = ey.getKey();
 				String value = ey.getValue();
-				sf.append("<input type=\"hidden\" name=\"" + key + "\" id=\""
-						+ key + "\" value=\"" + value + "\"/>");
+				sf.append(key+"<input  name=\"" + key + "\" id=\""
+						+ key + "\" value=\"" + value + "\"/> <br/>");
 			}
 		}
-		//sf.append("<input type=\"submit\" value=\"提交订单\">");
+		sf.append("<input type=\"submit\" value=\"提交订单\">");
 		sf.append("</form>");
 		sf.append("</body>");
 		sf.append("<script type=\"text/javascript\">");
-		sf.append("document.all.pay_form.submit();");
+		//sf.append("document.all.pay_form.submit();");
 		sf.append("</script>");
 		sf.append("</html>");
 		return sf.toString();

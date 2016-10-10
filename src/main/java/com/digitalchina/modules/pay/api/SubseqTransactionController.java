@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,6 +54,12 @@ public class SubseqTransactionController {
 	private static final String subUrl = "http://newpayment-test.chinapay.com/CTITS/service/rest/forward/syn/000000000065/0/0/0/0/0";
 	
 	private static final String VERIFY_KEY = "VERIFY_KEY";
+	
+	/**退款后台应答地址*/
+	public static final String MerBgUrl = ResourceBundle.getBundle("payconfig").getString("pay.return.bgurl");
+	
+	public static final String prefix = ResourceBundle.getBundle("payconfig").getString("pay.pre");
+	
 	/**
 	 * 
 	 * 0401退款、0402退款撤销、0409退款重汇、9908通知分账的交易
@@ -88,7 +95,7 @@ public class SubseqTransactionController {
 		map.put("TranDate", ChinapayUtil.getCurrentTime()[0]);
 		map.put("TranTime", ChinapayUtil.getCurrentTime()[1]);
 		//原始交易订单号
-		map.put("OriOrderNo", request.getParameter("oldno"));
+		map.put("OriOrderNo", request.getParameter("oldorderid"));
 		//原始商户交易日期
 		map.put("OriTranDate", request.getParameter("olddate"));
 		//退款金额
@@ -100,11 +107,11 @@ public class SubseqTransactionController {
 		* 0403消费撤销  0401退款交易  0202预授权完成  0203预授权撤销  
 		* 0204预授权完成撤销  0402 退款撤销  0409 退款重汇  9908 通知分账
 		*/
-		map.put("TranType", "0403");
+		map.put("TranType", "0401");
 		//业务类型  固定值
 		map.put("BusiType", "0001");
 		//商户后台通知地址
-		map.put("MerBgUrl", "house");
+		map.put("MerBgUrl", prefix+request.getContextPath()+MerBgUrl);
 		
 		//参数签名
 		SecssUtil secssUtil = new SecssUtil();
@@ -118,13 +125,14 @@ public class SubseqTransactionController {
 			return null;
 		}
 		map.put("Signature", signature);
+		log.info("退款发送数据 -->" + map);
 		CloseableHttpResponse httpResonse = HttpUtil.sendToOtherServer(subUrl, map);
 		if(null==httpResonse){
 			//
 			response.getWriter().write("发送失败");
 		}else{
 		  String respStr = StringUtil.parseResponseToStr(httpResonse);
-		  System.out.println(respStr);
+		  log.info("退款即时响应： "+respStr);
 		  if(!respStr.contains("=")){
 			 response.getWriter().write(respStr);
 			 return null;
@@ -136,22 +144,18 @@ public class SubseqTransactionController {
 			  request.setAttribute(entry.getKey(), entry.getValue());
 		  }
 		//验证签名
-		String respCode = resultMap.remove("respCode");
-		String respMsg = resultMap.remove("respMsg");
-		if("0000".equals(respCode)){
-			if(SignUtil.verify(resultMap)){
-				resultMap.put(VERIFY_KEY, "success");
-				request.setAttribute(VERIFY_KEY, "success");
-			}else{
-				resultMap.put(VERIFY_KEY, "fail");
-				request.setAttribute(VERIFY_KEY, "fail");
-			}
+		  SecssUtil secssUtil2 = new SecssUtil();
+		  secssUtil2.verify(resultMap);
+		  if(secssUtil2.getErrCode().equals(SecssConstants.SUCCESS)){
+			  log.info("退款即时响应验签成功！");
+			  request.setAttribute(VERIFY_KEY,true);
+		  }else{
+			  log.info("退款即时响应验签失败！");
+			  request.setAttribute(VERIFY_KEY,false);
+		  }
+		  
 		}
-		resultMap.put("respMsg", respMsg);
-		resultMap.put("respCode", respCode);
-		}
-		//String html = ChinapayUtil.createAutoFormHtml(subUrl, map, "UTF-8");
-		if(request.getParameter("oldno")==null){
+		if(request.getParameter("oldorderid")==null){
 			request.setAttribute("params", "oldno  olddate");
 		}
 	    return "/test/tuikuan"; 
@@ -185,5 +189,6 @@ public class SubseqTransactionController {
 			log.info(paramsMap.get("OriOrderNo")+"订单退款失败!");
 		}
 	}
+	
 	
 }

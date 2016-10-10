@@ -44,7 +44,7 @@ public class OrderComfirmController {
 		 params.put("Signature", Signature);
 	     
 	     log.info("create pay form , params:" + params);
-    	 String html = ChinapayUtil.createAutoFormHtml(url, params, "UTF-8");
+    	 String html = ChinapayUtil.createAutoFormHtml(url, params, "utf-8");
 	     model.addAttribute("body", html);
 	     return "/test/pay"; 
 	}
@@ -54,20 +54,20 @@ public class OrderComfirmController {
 	 * 支付交易完成后，支付应答会分前台页面跳转和后台Http通知方式返回给商户，
 	 * 商户需要对ChinaPay返回报文签名进行验签，以确定此报文是由ChinaPay发出
 	 */
-	@RequestMapping(value="/chinapayrecv",method = RequestMethod.POST)
+	@RequestMapping(value="/chinapayrecv")
 	public void payBackInfo(HttpServletRequest request){
-		log.info("接收chinapay发出的后台通知开始");
-		Map<String,String[]> paramsMap = request.getParameterMap();
+		log.info("接收chinapay发出的支付后台通知开始");
+		Map<String,String> paramsMap = request.getParameterMap();
+		log.info("接收到chinapay发出支付后台通知的参数"+paramsMap);
 		//验证签名。
 		SecssUtil secssUtil = new SecssUtil();
 		secssUtil.init();
 		secssUtil.verify(paramsMap);
 		if(!SecssConstants.SUCCESS.equals(secssUtil.getErrCode())){
 			//验签失败
-			log.info("接收到chinapay发出后台通知的参数,验签失败  "+secssUtil.getErrMsg());
+			log.info("接收到chinapay发出支付后台通知的参数,验签失败  "+secssUtil.getErrMsg()+secssUtil.getErrCode());
 			return;
 		}
-		log.info("接收到chinapay发出后台通知的参数"+paramsMap);
 		log.info("订单支付状态 ： "+paramsMap.get("OrderStatus"));
 		
 		if("0000".equals(paramsMap.get("OrderStatus"))){

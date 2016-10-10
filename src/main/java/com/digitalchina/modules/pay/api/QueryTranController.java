@@ -89,6 +89,13 @@ public class QueryTranController {
 				request.setAttribute(entry.getKey(), entry.getValue());
 			}
 			//验证签名
+			SecssUtil secssUtil2 = new SecssUtil();
+			secssUtil2.init();
+			secssUtil2.verify(resultMap);
+			
+			if(secssUtil2.getErrCode().equals(SecssConstants.SUCCESS)){
+				log.info("验签成功！");
+			}
 			String respCode = resultMap.get("respCode");
 			if("0000".equals(respCode)){
 				if(SignUtil.verify(resultMap)){
